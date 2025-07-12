@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Types Demo</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide-react@0.263.1/dist/umd/lucide-react.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState } = React;
+        const { Target, Link, Lightbulb, Send } = lucide;
+
+        const PromptTypesDemo = () => {
+          const [activeTab, setActiveTab] = useState('directive');
+          const [userInput, setUserInput] = useState('');
+          const [results, setResults] = useState({});
+          const [isProcessing, setIsProcessing] = useState(false);
+
+          const promptExamples = {
+            directive: {
+              icon: React.createElement(Target, { className: "w-5 h-5" }),
+              title: "Directive Prompts",
+              description: "Clear, direct commands that specify exactly what you want",
+              examples: [
+                "Write a professional email declining a meeting",
+                "Create a marketing slogan for eco-friendly water bottles",
+                "Summarize this text in 3 bullet points",
+                "Generate 5 creative names for a pizza restaurant"
+              ],
+              template: "Write a {task} for {subject}",
+              explanation: "Directive prompts work best when you know exactly what you want. They're straightforward and get immediate results."
+            },
+            chainOfThought: {
+              icon: React.createElement(Link, { className: "w-5 h-5" }),
+              title: "Chain-of-Thought",
+              description: "Step-by-step reasoning that shows the thinking process",
+              examples: [
+                "Let's think step by step: If a pizza costs $12 and I want to tip 18%, how much do I pay total?",
+                "Walk me through the process of how photosynthesis works",
+                "Step by step, how would you solve this customer complaint?",
+                "Let's break down why this marketing campaign might fail"
+              ],
+              template: "Let's think step by step: {your question}",
+              explanation: "Chain-of-thought prompts are perfect for complex problems, learning, and when you need to understand the reasoning behind an answer."
+            },
+            fewShot: {
+              icon: React.createElement(Lightbulb, { className: "w-5 h-5" }),
+              title: "Few-Shot Prompts",
+              description: "Learning by example - show patterns through demonstrations",
+              examples: [
+                "Classify emotions:\nText: 'I love this!' → Emotion: Joy\nText: 'This is terrible' → Emotion: Anger\nText: 'I'm worried about tomorrow' → Emotion:",
+                "Product categories:\nItem: iPhone → Category: Electronics\nItem: Nike Shoes → Category: Footwear\nItem: Coffee Mug → Category:",
+                "Formality levels:\nCasual: 'Hey, what's up?' → Formal: 'Good morning, how are you?'\nCasual: 'Thanks a lot!' → Formal:",
+                "Translation style:\nEnglish: 'It's raining cats and dogs' → Simple: 'It's raining very heavily'\nEnglish: 'Break a leg!' → Simple:"
+              ],
+              template: "Example 1: {input} → {output}\nExample 2: {input} → {output}\nNew: {your input} →",
+              explanation: "Few-shot prompts teach through examples. They're excellent for pattern recognition, style matching, and consistent formatting."
+            }
+          };
+
+          const handleDemo = async (example) => {
+            setIsProcessing(true);
+            setUserInput(example);
+            
+            // Simulate API call with realistic delay
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            // Mock responses based on prompt type
+            const mockResponse = generateMockResponse(activeTab, example);
+            setResults({...results, [activeTab]: mockResponse});
+            setIsProcessing(false);
+          };
+
+          const generateMockResponse = (type, prompt) => {
+            const responses = {
+              directive: {
+                "Write a professional email declining a meeting": "Subject: Unable to Attend Meeting - [Date]\n\nDear [Name],\n\nThank you for inviting me to the meeting scheduled for [date]. Unfortunately, I have a prior commitment that conflicts with this time.\n\nI would appreciate receiving the meeting notes afterward and am available for a brief follow-up call if needed.\n\nBest regards,\n[Your name]",
+                "Create a marketing slogan for eco-friendly water bottles": "\"Pure Water, Pure Planet - Drink Responsibly\"",
+                "Summarize this text in 3 bullet points": "• Main point 1: Key concept explained\n• Main point 2: Supporting evidence provided\n• Main point 3: Conclusion and implications",
+                "Generate 5 creative names for a pizza restaurant": "1. Dough Dynasty\n2. Slice Paradise\n3. The Cheesy Crown\n4. Crust & Co.\n5. Pizza Perfection Hub"
+              },
+              chainOfThought: {
+                "Let's think step by step: If a pizza costs $12 and I want to tip 18%, how much do I pay total?": "Let me break this down step by step:\n\n1. First, I need to calculate the tip amount\n   - Tip = 18% of $12\n   - Tip = 0.18 × $12 = $2.16\n\n2. Then I add the tip to the original cost\n   - Total = Original cost + Tip\n   - Total = $12 + $2.16 = $14.16\n\nTherefore, you'll pay $14.16 total.",
+                "Walk me through the process of how photosynthesis works": "Let me explain photosynthesis step by step:\n\n1. **Light absorption**: Chlorophyll in leaves captures sunlight energy\n2. **Water uptake**: Roots absorb water from the soil\n3. **CO2 intake**: Leaves take in carbon dioxide from the air\n4. **Chemical reaction**: Light energy converts CO2 + H2O into glucose + oxygen\n5. **Oxygen release**: O2 is released as a byproduct\n6. **Glucose storage**: Sugar is stored for plant energy\n\nThis process is essential for life on Earth!",
+                "Step by step, how would you solve this customer complaint?": "Here's my step-by-step approach:\n\n1. **Listen actively**: Let the customer fully explain their issue\n2. **Acknowledge**: Show empathy and understanding\n3. **Investigate**: Gather all relevant details and facts\n4. **Propose solution**: Offer specific remedies or alternatives\n5. **Follow up**: Ensure the solution worked and customer is satisfied\n6. **Document**: Record the issue and resolution for future reference",
+                "Let's break down why this marketing campaign might fail": "Let me analyze potential failure points:\n\n1. **Target audience mismatch**: Campaign might not resonate with intended demographic\n2. **Poor timing**: Launch during competitor events or market downturns\n3. **Insufficient budget**: Inadequate reach and frequency\n4. **Weak messaging**: Unclear value proposition or call-to-action\n5. **Wrong channels**: Using platforms where target audience isn't active\n6. **No measurement plan**: Can't optimize without proper tracking\n\nEach factor can significantly impact campaign success."
+              },
+              fewShot: {
+                "Classify emotions:\nText: 'I love this!' → Emotion: Joy\nText: 'This is terrible' → Emotion: Anger\nText: 'I'm worried about tomorrow' → Emotion:": "Anxiety",
+                "Product categories:\nItem: iPhone → Category: Electronics\nItem: Nike Shoes → Category: Footwear\nItem: Coffee Mug → Category:": "Kitchenware",
+                "Formality levels:\nCasual: 'Hey, what's up?' → Formal: 'Good morning, how are you?'\nCasual: 'Thanks a lot!' → Formal:": "'Thank you very much for your assistance.'",
+                "Translation style:\nEnglish: 'It's raining cats and dogs' → Simple: 'It's raining very heavily'\nEnglish: 'Break a leg!' → Simple:": "'Good luck!'"
+              }
+            };
+            
+            return responses[type][prompt] || "This is a sample response demonstrating the prompt type.";
+          };
+
+          const currentPrompt = promptExamples[activeTab];
+
+          return React.createElement('div', {
+            className: "max-w-6xl mx-auto p-6 bg-white min-h-screen"
+          }, [
+            // Header
+            React.createElement('div', {
+              className: "text-center mb-8",
+              key: "header"
+            }, [
+              React.createElement('h1', {
+                className: "text-3xl font-bold text-gray-800 mb-2",
+                key: "title"
+              }, "Interactive Prompt Types Demo"),
+              React.createElement('p', {
+                className: "text-gray-600",
+                key: "subtitle"
+              }, "Explore different prompting techniques and see them in action")
+            ]),
+
+            // Tab Navigation
+            React.createElement('div', {
+              className: "flex flex-wrap justify-center gap-4 mb-8",
+              key: "tabs"
+            }, Object.entries(promptExamples).map(([key, prompt]) => 
+              React.createElement('button', {
+                key: key,
+                onClick: () => setActiveTab(key),
+                className: `flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
+                  activeTab === key
+                    ? 'bg-blue-500 text-white shadow-lg'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`
+              }, [prompt.icon, prompt.title])
+            )),
+
+            // Main Content
+            React.createElement('div', {
+              className: "grid md:grid-cols-2 gap-8",
+              key: "content"
+            }, [
+              // Left Panel
+              React.createElement('div', {
+                className: "space-y-6",
+                key: "left"
+              }, [
+                React.createElement('div', {
+                  className: "bg-blue-50 p-6 rounded-lg",
+                  key: "info"
+                }, [
+                  React.createElement('h2', {
+                    className: "text-xl font-semibold text-blue-800 mb-3 flex items-center gap-2",
+                    key: "title"
+                  }, [currentPrompt.icon, currentPrompt.title]),
+                  React.createElement('p', {
+                    className: "text-blue-700 mb-4",
+                    key: "desc"
+                  }, currentPrompt.description),
+                  React.createElement('div', {
+                    className: "bg-white p-4 rounded border-l-4 border-blue-400",
+                    key: "template"
+                  }, [
+                    React.createElement('p', {
+                      className: "text-sm text-gray-600 mb-2",
+                      key: "label"
+                    }, "Template:"),
+                    React.createElement('code', {
+                      className: "text-blue-600 font-mono text-sm",
+                      key: "code"
+                    }, currentPrompt.template)
+                  ])
+                ]),
+
+                React.createElement('div', {
+                  className: "bg-gray-50 p-6 rounded-lg",
+                  key: "why"
+                }, [
+                  React.createElement('h3', {
+                    className: "font-semibold text-gray-800 mb-3",
+                    key: "title"
+                  }, "Why Use This Type?"),
+                  React.createElement('p', {
+                    className: "text-gray-700",
+                    key: "text"
+                  }, currentPrompt.explanation)
+                ]),
+
+                React.createElement('div', {
+                  className: "bg-green-50 p-6 rounded-lg",
+                  key: "examples"
+                }, [
+                  React.createElement('h3', {
+                    className: "font-semibold text-green-800 mb-3",
+                    key: "title"
+                  }, "Try These Examples"),
+                  React.createElement('div', {
+                    className: "space-y-2",
+                    key: "buttons"
+                  }, currentPrompt.examples.map((example, index) =>
+                    React.createElement('button', {
+                      key: index,
+                      onClick: () => handleDemo(example),
+                      className: "w-full text-left p-3 bg-white rounded border hover:bg-green-100 transition-colors text-sm",
+                      disabled: isProcessing
+                    }, example.length > 80 ? example.substring(0, 80) + '...' : example)
+                  ))
+                ])
+              ]),
+
+              // Right Panel
+              React.createElement('div', {
+                className: "space-y-6",
+                key: "right"
+              }, [
+                React.createElement('div', {
+                  className: "bg-white border-2 border-gray-200 rounded-lg p-6",
+                  key: "demo"
+                }, [
+                  React.createElement('h3', {
+                    className: "font-semibold text-gray-800 mb-4",
+                    key: "title"
+                  }, "Live Demo"),
+                  React.createElement('div', {
+                    className: "space-y-4",
+                    key: "form"
+                  }, [
+                    React.createElement('div', {
+                      key: "input-group"
+                    }, [
+                      React.createElement('label', {
+                        className: "block text-sm font-medium text-gray-700 mb-2",
+                        key: "label"
+                      }, "Current Prompt:"),
+                      React.createElement('textarea', {
+                        value: userInput,
+                        onChange: (e) => setUserInput(e.target.value),
+                        className: "w-full p-3 border border-gray-300 rounded-lg resize-none",
+                        rows: 4,
+                        placeholder: "Select an example above or type your own prompt...",
+                        key: "textarea"
+                      })
+                    ]),
+                    React.createElement('button', {
+                      onClick: () => handleDemo(userInput),
+                      disabled: isProcessing || !userInput.trim(),
+                      className: "w-full flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white py-3 px-6 rounded-lg font-medium transition-colors",
+                      key: "submit"
+                    }, isProcessing ? [
+                      React.createElement('div', {
+                        className: "animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent",
+                        key: "spinner"
+                      }),
+                      "Processing..."
+                    ] : [
+                      React.createElement(Send, { className: "w-4 h-4", key: "icon" }),
+                      "Run Demo"
+                    ])
+                  ])
+                ]),
+
+                // Results
+                results[activeTab] && React.createElement('div', {
+                  className: "bg-gray-50 border-2 border-gray-200 rounded-lg p-6",
+                  key: "results"
+                }, [
+                  React.createElement('h3', {
+                    className: "font-semibold text-gray-800 mb-4",
+                    key: "title"
+                  }, "AI Response:"),
+                  React.createElement('div', {
+                    className: "bg-white p-4 rounded border",
+                    key: "response"
+                  }, React.createElement('pre', {
+                    className: "whitespace-pre-wrap text-sm text-gray-700 font-sans",
+                    key: "text"
+                  }, results[activeTab]))
+                ])
+              ])
+            ]),
+
+            // Footer
+            React.createElement('div', {
+              className: "mt-12 text-center text-gray-500 text-sm",
+              key: "footer"
+            }, React.createElement('p', {
+              key: "tip"
+            }, "💡 Tip: Try mixing different prompt types for even better results!"))
+          ]);
+        };
+
+        ReactDOM.render(React.createElement(PromptTypesDemo), document.getElementById('root'));
+    </script>
+</body>
+</html>
